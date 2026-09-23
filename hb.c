@@ -33,11 +33,6 @@ typedef struct {
 
 static RuneBuffer hbrunebuffer = { 0, NULL };
 
-/*
- * Poplulate the array with a list of font features, wrapped in FEATURE macro,
- * e. g.
- * FEATURE('c', 'a', 'l', 't'), FEATURE('d', 'l', 'i', 'g')
- */
 hb_feature_t features[] = { };
 
 void
@@ -63,7 +58,6 @@ hbfindfont(XftFont *match)
 			return hbfontcache.fonts[i].font;
 	}
 
-	/* Font not found in cache, caching it now. */
 	hbfontcache.fonts = realloc(hbfontcache.fonts, sizeof(HbFontMatch) * (hbfontcache.capacity + 1));
 	FT_Face face = XftLockFace(match);
 	hb_font_t *font = hb_ft_font_create(face, NULL);
@@ -90,32 +84,24 @@ void hbtransform(HbTransformData *data, XftFont *xfont, const Glyph *glyphs, int
 	hb_buffer_set_direction(buffer, HB_DIRECTION_LTR);
 	hb_buffer_set_cluster_level(buffer, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
 
-	/* Resize the buffer if required length is larger. */
 	if (hbrunebuffer.capacity < length) {
 		hbrunebuffer.capacity = (length / BUFFER_STEP + 1) * BUFFER_STEP;
 		hbrunebuffer.runes = realloc(hbrunebuffer.runes, hbrunebuffer.capacity * sizeof(Rune));
 	}
 
-	/* Fill buffer with codepoints. */
 	for (rune_idx = 0, glyph_idx = start; glyph_idx < end; glyph_idx++, rune_idx++) {
 		hbrunebuffer.runes[rune_idx] = glyphs[glyph_idx].u;
-		mode = glyphs[glyph_idx].mode;
-		if (mode & ATTR_WDUMMY)
-			hbrunebuffer.runes[rune_idx] = 0x0020;
-		/* Draw spaces for image placeholders. */
-		if (mode & ATTR_IMAGE)
+		/* Replace dummy/image placeholders with space so HarfBuzz doesn't shape them */
+		if (glyph_is_dummy(&glyphs[glyph_idx]))
 			hbrunebuffer.runes[rune_idx] = 0x0020;
 	}
 	hb_buffer_add_codepoints(buffer, hbrunebuffer.runes, length, 0, length);
 
-	/* Shape the segment. */
 	hb_shape(font, buffer, features, sizeof(features)/sizeof(hb_feature_t));
 
-	/* Get new glyph info. */
 	hb_glyph_info_t *info = hb_buffer_get_glyph_infos(buffer, &glyph_count);
 	hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(buffer, &glyph_count);
 
-	/* Fill the output. */
 	data->buffer = buffer;
 	data->glyphs = info;
 	data->positions = pos;

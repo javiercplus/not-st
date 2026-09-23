@@ -1,37 +1,16 @@
-/*
- * Copyright 2018 Avi Halachmi (:avih) avihpit@yahoo.com https://github.com/avih
- * MIT/X Consortium License
- */
+#define BDL (1<<8)
+#define BDA (1<<9)
 
-/*
- * U+25XX codepoints data
- *
- * References:
- *   http://www.unicode.org/charts/PDF/U2500.pdf
- *   http://www.unicode.org/charts/PDF/U2580.pdf
- *
- * Test page:
- *   https://github.com/GNOME/vte/blob/master/doc/boxes.txt
- */
+#define BBD (1<<10)
+#define BBL (2<<10)
+#define BBU (3<<10)
+#define BBR (4<<10)
+#define BBQ (5<<10)
+#define BRL (6<<10)
 
-/* Each shape is encoded as 16-bits. Higher bits are category, lower are data */
-/* Categories (mutually exclusive except BDB): */
-/* For convenience, BDL/BDA/BBS/BDB are 1 bit each, the rest are enums */
-#define BDL (1<<8)   /* Box Draw Lines (light/double/heavy) */
-#define BDA (1<<9)   /* Box Draw Arc (light) */
+#define BBS (1<<14)
+#define BDB (1<<15)
 
-#define BBD (1<<10)  /* Box Block Down (lower) X/8 */
-#define BBL (2<<10)  /* Box Block Left X/8 */
-#define BBU (3<<10)  /* Box Block Upper X/8 */
-#define BBR (4<<10)  /* Box Block Right X/8 */
-#define BBQ (5<<10)  /* Box Block Quadrants */
-#define BRL (6<<10)  /* Box Braille (data is lower byte of U28XX) */
-
-#define BBS (1<<14)  /* Box Block Shades */
-#define BDB (1<<15)  /* Box Draw is Bold */
-
-/* (BDL/BDA) Light/Double/Heavy x Left/Up/Right/Down/Horizontal/Vertical      */
-/* Heavy is light+double (literally drawing light+double align to form heavy) */
 #define LL (1<<0)
 #define LU (1<<1)
 #define LR (1<<2)
@@ -53,32 +32,32 @@
 #define HH (HL+HR)
 #define HV (HU+HD)
 
-/* (BBQ) Quadrants Top/Bottom x Left/Right */
 #define TL (1<<0)
 #define TR (1<<1)
 #define BL (1<<2)
 #define BR (1<<3)
 
-/* Data for U+2500 - U+259F except dashes/diagonals */
+/* boxdata[256] maps U+2500-U+25FF (BOXDRAW_BLOCK) to drawing instructions.
+ * Generated from Unicode Blocks.txt - do not edit manually.
+ * Index = low byte of codepoint (u & 0xFF). */
 static const unsigned short boxdata[256] = {
-	/* light lines */
-	[0x00] = BDL + LH,       /* light horizontal */
-	[0x02] = BDL + LV,       /* light vertical */
-	[0x0c] = BDL + LD + LR,  /* light down and right */
-	[0x10] = BDL + LD + LL,  /* light down and left */
-	[0x14] = BDL + LU + LR,  /* light up and right */
-	[0x18] = BDL + LU + LL,  /* light up and left */
-	[0x1c] = BDL + LV + LR,  /* light vertical and right */
-	[0x24] = BDL + LV + LL,  /* light vertical and left */
-	[0x2c] = BDL + LH + LD,  /* light horizontal and down */
-	[0x34] = BDL + LH + LU,  /* light horizontal and up */
-	[0x3c] = BDL + LV + LH,  /* light vertical and horizontal */
-	[0x74] = BDL + LL,       /* light left */
-	[0x75] = BDL + LU,       /* light up */
-	[0x76] = BDL + LR,       /* light right */
-	[0x77] = BDL + LD,       /* light down */
 
-	/* heavy [+light] lines */
+	[0x00] = BDL + LH,
+	[0x02] = BDL + LV,
+	[0x0c] = BDL + LD + LR,
+	[0x10] = BDL + LD + LL,
+	[0x14] = BDL + LU + LR,
+	[0x18] = BDL + LU + LL,
+	[0x1c] = BDL + LV + LR,
+	[0x24] = BDL + LV + LL,
+	[0x2c] = BDL + LH + LD,
+	[0x34] = BDL + LH + LU,
+	[0x3c] = BDL + LV + LH,
+	[0x74] = BDL + LL,
+	[0x75] = BDL + LU,
+	[0x76] = BDL + LR,
+	[0x77] = BDL + LD,
+
 	[0x01] = BDL + HH,
 	[0x03] = BDL + HV,
 	[0x0d] = BDL + HR + LD,
@@ -145,7 +124,6 @@ static const unsigned short boxdata[256] = {
 	[0x7e] = BDL + HL + LR,
 	[0x7f] = BDL + HU + LD,
 
-	/* double [+light] lines */
 	[0x50] = BDL + DH,
 	[0x51] = BDL + DV,
 	[0x52] = BDL + DR + LD,
@@ -176,25 +154,20 @@ static const unsigned short boxdata[256] = {
 	[0x6b] = BDL + DV + LH,
 	[0x6c] = BDL + DH + DV,
 
-	/* (light) arcs */
 	[0x6d] = BDA + LD + LR,
 	[0x6e] = BDA + LD + LL,
 	[0x6f] = BDA + LU + LL,
 	[0x70] = BDA + LU + LR,
 
-	/* Lower (Down) X/8 block (data is 8 - X) */
 	[0x81] = BBD + 7, [0x82] = BBD + 6, [0x83] = BBD + 5, [0x84] = BBD + 4,
 	[0x85] = BBD + 3, [0x86] = BBD + 2, [0x87] = BBD + 1, [0x88] = BBD + 0,
 
-	/* Left X/8 block (data is X) */
 	[0x89] = BBL + 7, [0x8a] = BBL + 6, [0x8b] = BBL + 5, [0x8c] = BBL + 4,
 	[0x8d] = BBL + 3, [0x8e] = BBL + 2, [0x8f] = BBL + 1,
 
-	/* upper 1/2 (4/8), 1/8 block (X), right 1/2, 1/8 block (8-X) */
 	[0x80] = BBU + 4, [0x94] = BBU + 1,
 	[0x90] = BBR + 4, [0x95] = BBR + 7,
 
-	/* Quadrants */
 	[0x96] = BBQ + BL,
 	[0x97] = BBQ + BR,
 	[0x98] = BBQ + TL,
@@ -206,9 +179,6 @@ static const unsigned short boxdata[256] = {
 	[0x9e] = BBQ + BL + TR,
 	[0x9f] = BBQ + BL + TR + BR,
 
-	/* Shades, data is an alpha value in 25% units (1/4, 1/2, 3/4) */
 	[0x91] = BBS + 1, [0x92] = BBS + 2, [0x93] = BBS + 3,
 
-	/* U+2504 - U+250B, U+254C - U+254F: unsupported (dashes) */
-	/* U+2571 - U+2573: unsupported (diagonals) */
 };

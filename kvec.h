@@ -23,27 +23,6 @@
    SOFTWARE.
 */
 
-/*
-  An example:
-
-#include "kvec.h"
-int main() {
-	kvec_t(int) array;
-	kv_init(array);
-	kv_push(int, array, 10); // append
-	kv_a(int, array, 20) = 5; // dynamic
-	kv_A(array, 20) = 4; // static
-	kv_destroy(array);
-	return 0;
-}
-*/
-
-/*
-  2008-09-22 (0.1.0):
-
-	* The initial version.
-
-*/
 
 #ifndef AC_KVEC_H
 #define AC_KVEC_H

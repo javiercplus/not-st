@@ -1,5 +1,3 @@
-/* See LICENSE for license details. */
-
 enum win_mode {
 	MODE_VISIBLE     = 1 << 0,
 	MODE_FOCUSED     = 1 << 1,
@@ -19,6 +17,7 @@ enum win_mode {
 	MODE_MOUSEMANY   = 1 << 15,
 	MODE_BRCKTPASTE  = 1 << 16,
 	MODE_NUMLOCK     = 1 << 17,
+	MODE_SYNC        = 1 << 18,
 	MODE_MOUSE       = MODE_MOUSEBTN|MODE_MOUSEMOTION|MODE_MOUSEX10\
 	                  |MODE_MOUSEMANY,
 };
@@ -28,6 +27,7 @@ void xclipcopy(void);
 void xdrawcursor(int, int, Glyph, int, int, Glyph, Line, int);
 void xdrawline(Line, int, int, int);
 void xfinishdraw(void);
+void fullscreen(const Arg *);
 void xloadcols(void);
 int xsetcolorname(int, const char *);
 int xgetcolor(int, unsigned char *, unsigned char *, unsigned char *);
@@ -35,10 +35,20 @@ void xseticontitle(char *);
 void xsettitle(char *);
 int xsetcursor(int);
 void xsetmode(int, unsigned int);
+int xismode(unsigned int);
+unsigned int xgetmode(void);
+void drawscrollbar(void);
 void xsetpointermotion(int);
+void xsetpointershape(const char *);
 void xsetsel(char *);
 int xstartdraw(void);
 void xximspot(int, int);
 
 void xstartimagedraw(int *dirty, int rows);
 void xfinishimagedraw();
+
+void xsetkittyflags(int, int);
+int xgetkittyflags(void);
+void xpushkittyflags(int);
+void xpopkittyflags(int);
+void xsetmodifyotherkeys(int);
