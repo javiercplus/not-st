@@ -1,0 +1,127 @@
+# st configuration file
+# Place in ~/.config/st/st.conf or /etc/st/st.conf
+# Live reload: Press Ctrl+Shift+F5 or reload via USR1 signal (kill -USR1 <pid>)
+
+# Modular configuration includes (optional)
+# include themes/tokyo-night.conf
+# include shortcuts.conf
+
+# Font settings
+# Primary font format: <family>:pixelsize=<px>:antialias=true:autohint=true
+# Or: <family>:size=<pt>:antialias=true:autohint=true
+font = "JetBrainsMono Nerd Font:size=11:antialias=true:autohint=true"
+sparefont = "Symbols Nerd Font:pixelsize=12:antialias=true:autohint=true"
+cwscale = 1.0
+chscale = 1.0
+
+# Window styling
+alpha = 0.88
+alpha_unfocused = 0.78
+borderpx = 10
+anysize_halign = 50
+anysize_valign = 50
+cols = 90
+rows = 26
+icon = "/usr/share/pixmaps/st.png"
+
+# Cursor settings
+# 0/1: Blinking Block, 2: Steady Block, 3: Blinking Underline, 4: Steady Underline, 5: Blinking Bar, 6: Steady Bar
+cursor_style = 1
+cursor_blink_timeout = 600
+cursor_thickness = 2
+cursor_dynamic_color = true
+
+# Rendering
+bold_is_not_bright = true
+boxdraw = true
+boxdraw_bold = true
+boxdraw_braille = false
+
+# Terminal settings
+termname = "st-256color"
+shell = ""
+tabspaces = 8
+bellvolume = 0
+minlatency = 2
+maxlatency = 33
+xdnd_escape_chars = " !\"#$&'()*;<>?[\\]^`{|}~"
+
+# Mouse and selection
+scrollback_lines = 5000
+wheel_scroll_multiplier = 3
+word_delimiters = " ()[]{}'\"=;:,/\\"
+double_click_timeout = 300
+triple_click_timeout = 600
+allow_altscreen = true
+image_preview_cmd = "feh"
+url_launcher = "xdg-open"
+
+# URL detection
+# Schemes with "://" are detected automatically. Add schemes without "://" here:
+url_prefixes = "magnet"
+
+# Keybindings
+# Modifiers: Ctrl, Shift, Alt (Mod1), Super (Mod4)
+# Formats: bind = <Modifiers>+<Key> = <action>
+# Available Actions:
+#   copy, paste, selpaste, fullscreen, new_terminal, scrollback_pager,
+#   open_url, copy_url, reload_config, zoom_in, zoom_out, zoom_reset,
+#   scroll_up, scroll_down, change_alpha_up, change_alpha_down, change_alpha_reset,
+#   pipe:<command>, spawn:<command>
+
+pager_command = "nvim"
+
+bind = Ctrl+Shift+c = copy
+bind = Ctrl+Shift+v = paste
+bind = Ctrl+Shift+Return = new_terminal
+bind = Ctrl+Shift+h = scrollback_pager
+bind = F11 = fullscreen
+bind = Alt+u = open_url
+bind = Alt+y = copy_url
+bind = Ctrl+Shift+F5 = reload_config
+bind = Ctrl+plus = zoom_in
+bind = Ctrl+equal = zoom_in
+bind = Ctrl+minus = zoom_out
+bind = Ctrl+0 = zoom_reset
+bind = Shift+Page_Up = scroll_up
+bind = Shift+Page_Down = scroll_down
+bind = Alt+a = change_alpha_up
+bind = Alt+s = change_alpha_down
+bind = Alt+m = change_alpha_reset
+
+# Graphics protocol limits (Kitty / Sixel)
+# kitty_graphics = true
+# sixel_graphics = false
+# graphics_max_single_file_mb = 20
+# graphics_total_file_mb = 300
+# graphics_max_single_ram_mb = 100
+# graphics_max_total_ram_mb = 300
+# graphics_max_placements = 4096
+# graphics_tolerance = 0.05
+# graphics_anim_delay = 20
+
+# Colors (Tokyo Night default)
+foreground     = "#c0caf5"
+background     = "#1a1b26"
+cursor         = "#c0caf5"
+cursor_reverse = "#1a1b26"
+selection_fg   = "#c0caf5"
+selection_bg   = "#283457"
+
+color0  = "#15161e"
+color1  = "#f7768e"
+color2  = "#9ece6a"
+color3  = "#e0af68"
+color4  = "#7aa2f7"
+color5  = "#bb9af7"
+color6  = "#7dcfff"
+color7  = "#a9b1d6"
+
+color8  = "#414868"
+color9  = "#f7768e"
+color10 = "#9ece6a"
+color11 = "#e0af68"
+color12 = "#7aa2f7"
+color13 = "#bb9af7"
+color14 = "#7dcfff"
+color15 = "#c0caf5"

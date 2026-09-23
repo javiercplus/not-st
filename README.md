@@ -1,196 +1,133 @@
-# st-graphics
+# st - Modern Lightweight Alternative to Kitty for X11
 
-This is a fork of [st](https://st.suckless.org/) that implements a subset of
-[kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/).
+A blazing-fast, ultra-lightweight X11 terminal emulator based on `st` (suckless) with Kitty Graphics Protocol, font ligatures, transparency, mouse scrollback, cursor styles, fullscreen toggle, and runtime external configuration (`st.conf`).
 
-If you want this formatted as a single patch, take the last commit from this
-branch: [graphics-squashed](https://github.com/sergei-grechanik/st-graphics/tree/graphics-squashed)
-(may be slightly outdated).
+---
 
-If you want to combine this with other patches, check out the
-[graphics-with-patches branch](https://github.com/sergei-grechanik/st-graphics/tree/graphics-with-patches)
-(see also [patch compatibility](#patch-compatibility)).
+## Features & Included Capabilities
 
-![Viewing images with icat-mini.sh in tmux in st with alpha patch](https://github.com/sergei-grechanik/st-graphics/assets/1084979/039e5d22-f831-4dbd-a10d-58715474c221)
-![Animation](https://github.com/user-attachments/assets/4d4c056d-47bd-4e2a-b0e0-8ad80e4c25d7)
+1. **Kitty Graphics Protocol** (based on `sergei-grechanik/st-graphics`)
+   - Full support for image preview and inline rendering: `kitten icat`, `yazi`, `ranger`, `chafa`, `timg`, `snacks.nvim`, `image.nvim`, `fzf` previews.
+   - Supports PNG, RGB, RGBA, JPEG, zlib compression, shared memory (`t=s`), direct uploads (`t=d`), Unicode placeholders.
+2. **Font Ligatures** (HarfBuzz text shaping)
+   - Renders programming ligatures (`!=`, `==`, `===`, `<=`, `>=`, `->`, `=>`, `/*`, `*/`) seamlessly.
+3. **Boxdraw**
+   - Crisp rendering of box-drawing and block characters (U+2500 to U+259F) without gaps or font-dependent misalignment.
+4. **Scrollback & Mouse Wheel**
+   - History scrollback using `Shift+PageUp` / `Shift+PageDown`.
+   - Mouse wheel scrolling: automatically scrolls terminal buffer at prompt, and passes through scroll keys when in alternate screen applications (`vim`, `less`, `tmux`, `htop`).
+5. **Alpha & True Transparency (ARGB 32-bit)**
+   - True window background opacity without dimming text glyphs.
+   - Configurable focused and unfocused opacity (`alpha` and `alpha_unfocused`).
+   - Dynamic opacity adjustments via shortcuts (`Alt+a`, `Alt+s`, `Alt+m`).
+6. **External Configuration File (`st.conf`)**
+   - Configure fonts, fallback fonts, colors (Tokyo Night, Catppuccin, Gruvbox, etc.), padding, opacity, cursor styles, latency, and window settings in `~/.config/st/st.conf` without recompiling.
+   - Live configuration reload without restarting terminal (`Ctrl+Shift+F5` or `kill -USR1 $(pidof st)`).
+7. **Blinking Cursor & Dynamic Cursor Color & Cursor Shapes**
+   - Shapes: Blinking Block, Steady Block, Blinking Underline, Steady Underline, Blinking Bar, Steady Bar.
+   - DECSCUSR escape sequence support: cursor dynamically changes when switching between insert and normal mode in Neovim/Vim.
+   - Dynamic cursor color: reverses color of the character underneath for maximum visibility.
+8. **Native Fullscreen Toggle (EWMH)**
+   - Press `F11` to toggle borderless fullscreen seamlessly via `_NET_WM_STATE_FULLSCREEN`.
+9. **Spare Fonts / Fallback Fonts**
+   - Automatic fallback to Nerd Fonts, Symbola, or Emoji fonts for unmapped characters.
+10. **Bold is not bright**
+    - Bold font styling does not distort or wash out ANSI colors 0-7.
+11. **Modern Underline / Undercurl Support**
+    - Curly underlines (undercurl), double underlines, dotted, dashed, and colored underlines for LSP diagnostics and spelling errors.
+12. **Synchronized Updates (appsync / \033[?2026h])**
+    - Tear-free screen updates during fast output.
+13. **Anysize Window Centering**
+    - Smooth window resizing to arbitrary pixel dimensions with configurable centering alignment.
+14. **Clipboard Integration**
+    - `Ctrl+Shift+C` (copy) and `Ctrl+Shift+V` (paste) with X11 PRIMARY and CLIPBOARD synchronization.
+15. **URL Handler**
+    - `Alt+u` to select and open URLs in default browser.
+    - `Alt+y` to copy URLs to clipboard.
+    - Generic URL detection: any `scheme://...` (http, https, ftp, git, gemini, gopher, ...) is detected by shape; additional no-`://` schemes (`magnet`, `mailto`, ...) are configured via `url_prefixes` in `st.conf`.
+16. **Zoom Keybindings**
+    - `Ctrl + Plus` / `Ctrl + =` (Zoom In)
+    - `Ctrl + Minus` (Zoom Out)
+    - `Ctrl + 0` (Zoom Reset)
+17. **Desktop Integration & Window Icon**
+    - `st.desktop` entry and native `_NET_WM_ICON` PNG loading via Imlib2.
 
-This repository also includes a simple script to display images `icat-mini.sh`.
-Note: to make it work in tmux you need to enable pass-through sequences, i.e.
-add something like this to your `.tmux.conf`:
-
-    set -gq allow-passthrough all
-
-You also need to make sure that tmux supports 24-bit colors and that it knows
-that the client terminal supports 24-bit colors (you may need to install the st
-terminfo entry on all systems that you use, including remote ones).
-
-## Installation
-
-As usual, copy `config.def.h` to `config.h`, modify it according to your needs,
-run `make install` or `DESTDIR=/some/prefix make install`.
-
-In addition to the standard st dependencies (X11, fontconfig, freetype2),
-you will need imlib2 and zlib for the graphics module.
+---
 
 ## Configuration
 
-**This fork includes some seemingly unrelated changes, like anysize and
-underline color and style. You may want to tweak them too if you don't like the
-defaults. See also [patch compatibility](#patch-compatibility).**
+Configuration file search order:
+1. `-C /path/to/config.conf` command line argument
+2. `$ST_CONFIG` environment variable
+3. `$XDG_CONFIG_HOME/st/st.conf` or `~/.config/st/st.conf`
+4. `$XDG_CONFIG_HOME/st/config.toml` or `~/.config/st/config.toml`
+5. `~/.st.conf`
+6. `/etc/st/st.conf`
+7. Internal defaults (`config.def.h`)
 
-You may want to change the graphics-related shortcuts and image size limits (see
-`config.def.h`).
+To get started, copy the provided example configuration:
 
-Default shortcuts:
-- `Ctrl+Shift+RightClick` to preview the clicked image in feh.
-- `Ctrl+Shift+MiddleClick` to see debug info (image id, placement id, etc).
-- `Ctrl+Shift+F1` to toggle graphics debug mode. It has three states: 1) no
-  debugging; 2) show general info and print logs to stderr; 3) print logs and
-  show bounding boxes.
-- `Ctrl+Shift+F6` to dump the state of all images to stderr.
-- `Ctrl+Shift+F7` to unload all images from ram (but the cache in `/tmp` will be
-  preserved).
-- `Ctrl+Shift+F8` to toggle image display.
+```sh
+mkdir -p ~/.config/st
+cp st.conf.example ~/.config/st/st.conf
+```
 
-## Features
+---
 
-Originally I implemented it to prototype the Unicode placeholder feature (which
-is now included in the kitty graphics protocol). Classic placements were
-retrofitted later, and under the hood they are implemented via the same
-placeholder mechanism. This means that a cell may be occupied only by one
-placement.  It is the main reason why some things don't work or work a bit
-differently.
+## Keybindings Cheatsheet
 
-Here is the list of supported (✅ ), unsupported (❌), and non-standard (⚡)
-features.
+| Action | Keybinding |
+|---|---|
+| Toggle Fullscreen | `F11` |
+| Zoom in | `Ctrl + Plus` / `Ctrl + =` / `Ctrl + Shift + PageUp` |
+| Zoom out | `Ctrl + Minus` / `Ctrl + Shift + PageDown` |
+| Zoom reset | `Ctrl + 0` / `Ctrl + Shift + Home` |
+| Copy selection | `Ctrl + Shift + C` |
+| Paste clipboard | `Ctrl + Shift + V` / `Shift + Insert` |
+| New terminal (CWD) | `Ctrl + Shift + Return` |
+| Scrollback pager | `Ctrl + Shift + H` |
+| Scrollback Up / Down | `Shift + PageUp` / `Shift + PageDown` |
+| Mouse Scroll | Mouse Wheel (buffer scroll at prompt; passthrough in vim/less) |
+| Open URL | `Alt + u` (via `st-urlhandler`) |
+| Copy URL | `Alt + y` (via `st-urlhandler`) |
+| Increase Opacity | `Alt + a` (+5%) |
+| Decrease Opacity | `Alt + s` (-5%) |
+| Toggle Full Opacity | `Alt + m` (100% opaque) |
+| Reload Configuration | `Ctrl + Shift + F5` (or `kill -USR1 $(pidof st)`) |
+| Kitty Image Preview | `Ctrl + Shift + Right Click` on placeholder |
+| Kitty Image Debug Info | `Ctrl + Shift + Middle Click` |
 
-- Uploading:
-    - Formats:
-        - ✅ PNG (`f=100`)
-        - ✅ RGB, RGBA (`f=24`, `f=32`)
-        - ✅ Compression with zlib (`o=z`)
-        - ⚡ jpeg. Actually any format supported by imlib2 should work. The key
-          value is the same as for png (`f=100`).
-    - Transmission mediums:
-        - ✅ Direct (`t=d`)
-          - ⚡ Concurrent direct uploading is supported when the image id or
-            number is specified for each chunk.
-        - ✅ File (`t=f`)
-        - ✅ Temporary file (`t=t`)
-        - ✅ Shared memory object (`t=s`)
-    - ✅ Size and offset specification (`S` and `O` keys) for shared memory
-      - ❌ Not fully supported for files
-    - ✅ Image numbers
-    - ✅ Responses
-    - ✅ Transmit and display (`a=T`)
-- Placement:
-    - ✅ Classic placements (but see the note above)
-    - ✅ Unicode placeholders
-    - ✅ Placement IDs
-      - ❌ NOTE: Placement IDs must be 24-bit (between 1 and 16777215).
-    - ✅ Cursor movement policies `C=1` and `C=0`
-    - ✅ Source rectangle (`x, y, w, h`)
-    - ✅ The number of rows/columns (`r, c`)
-    - ❌ Cell offsets (`X, Y`)
-    - ❌ z-index. Classic placements will erase old placements and the text on
-      overlap.
-    - ❌ Relative placements (`P, Q, H, V`)
-- Deletion:
-    - ✅ Deletion of image data when the specifier is uppercase
-    - ✅ All visible classic placements (`d=a`)
-    - ✅ By image id/number and placement id (`d=i`, `d=n`)
-    - ❌ By position (specifiers `c, p, q, x, y, z`)
-    - ❌ Animation frames (`d=f`)
-- Animation - experimental
-    - ✅ Transferring animation frames (`a=f`)
-      - ✅ Transferring part of the image (`x, y, s, v`)
-      - ✅ Background colors (`Y`)
-      - ✅ Background frames (`c`)
-      - ❌ Editing the existing frame (`r`)
-      - ✅ Delays (`z`)
-    - ✅ Controlling animations (`a=a`)
-      - ✅ Stop, run, and loading modes (`s`)
-      - ❌ Number of loop (`v`)
-      - ✅ Setting the delay (`z`)
-    - ❌ Animation frame composition (`a=c`)
-    - ❌ Frame deletion (`d=f`)
-    - ✅ Kitty's icat kitten is supported. You can also use `icat-mini.sh`
-      (slower).
+---
 
-## Things I have tested
+## Building and Installation
 
-### Apps that seem to work
-- Kitty's icat kitten (works in tmux too).
-- [termpdf](https://github.com/dsanson/termpdf.py)
-- [ranger](https://github.com/ranger/ranger) - I had to explicitly set
-  `TERM=kitty`.
-- [tpix](https://github.com/jesvedberg/tpix)
-- [pixcat](https://github.com/mirukana/pixcat) (modulo some unsupported keys
-  that are currently ignored).
-- [viu](https://github.com/atanunq/viu) - I had to explicitly set
-  `TERM=kitty`.
-- [timg](https://github.com/hzeller/timg) - I had to explicitly pass `-pk`
-  (i.e. `timg -pk <image>`). If your timg is fresh enough, it even works in
-  tmux!
-- [yazi](https://github.com/sxyazi/yazi) - works if you run it as
-  `TERM="xterm-kitty" yazi`.
-- [mov-cli](https://github.com/mov-cli/mov-cli) - I had to explicitly set
-  `TERM="xterm-kitty"`.
-- [snacks.image](https://github.com/folke/snacks.nvim/blob/main/docs/image.md) -
-  works, you need to set the environment variable `SNACKS_KITTY=1`.
-- [chafa](https://github.com/hpjansson/chafa) - pass `-f kitty` explicitly (and
-  `--passthrough=tmux` if you are in tmux).
-- [fzf](https://github.com/junegunn/fzf) with the default preview script
-  ([fzf-preview.sh](https://github.com/junegunn/fzf/blob/master/bin/fzf-preview.sh))
-  works if you have the `kitten` command installed and you pretend that you
-  are running kitty: `KITTY_WINDOW_ID=1 fzf --preview 'fzf-preview.sh {}'`.
-- [mcat](https://github.com/Skardyy/mcat) - run as `mcat --kitty <image>`.
+### Dependencies
+- `libX11`, `libXft`, `libXrender`
+- `fontconfig`, `freetype2`
+- `harfbuzz`
+- `imlib2`, `zlib`
 
-### Apps that sort of work
-- [hologram.nvim](https://github.com/edluffy/hologram.nvim) - There are some
-  glitches, like erasure of parts of the status line.
-- [mpv](https://github.com/mpv-player/mpv) - shared memory works
-  (`mpv --vo=kitty --vo-kitty-use-shm=yes`), but slower than kitty, and there is
-  an annoying flickering status line at the top (unsupported z-index). There are
-  also some artifacts on high resolutions.
+### Compile & Install
+```sh
+make clean
+make
+sudo make install
+```
 
-### Apps that don't work
-- [termvisage](https://github.com/AnonymouX47/termvisage) - seems to erase
-  cells containing the image after image placement. In kitty this has no effect
-  on classic placements because they aren't attached to cells, but in
-  st-graphics classic placements are implemented on top of Unicode placements,
-  so they get erased.
+### Install Terminfo (if needed)
+```sh
+tic -sx st.info
+```
 
-## Patch compatibility
+---
 
-The [graphics-with-patches branch](https://github.com/sergei-grechanik/st-graphics/tree/graphics-with-patches)
-contains several patches applied on top of the graphics branch. The patches
-include:
+## Credits & License
 
-- [Boxdraw](https://st.suckless.org/patches/boxdraw) - applied with minimal
-  conflicts.
-- [Scrollback](https://st.suckless.org/patches/scrollback) - quite a few
-  conflicts, but easy to resolve.
-- [Wide glyph support](https://st.suckless.org/patches/glyph_wide_support/)
-- [Ligatures](https://st.suckless.org/patches/ligatures) -
-  required some modifications.
-- [Alpha](https://st.suckless.org/patches/alpha)
-- [External pipe](https://st.suckless.org/patches/externalpipe)
+Distributed under the MIT/X Consortium License. See [LICENSE](file:///home/dereck/st/LICENSE) for details.
 
-If you run into any problems with other patches, feel free to open an issue.
-
-### Patches and changes that are included in the graphics implementation
-
-This fork includes some patches and features that are not graphics-related
-per se, but are hard to disentangle from the graphics implementation:
-- [Anysize](https://st.suckless.org/patches/anysize/) - this patch is applied
-  and on by default. If you want the "expected" anysize behavior (no centering),
-  set `anysize_halign` and `anysize_valign` to zero in `config.h`.
-- Support for several XTWINOPS control sequences to query information that is
-  sometimes required for image display (like cell size in pixels).
-- Support for decoration (underline) color and style. The decoration color is
-  used to specify the placement id in Unicode placeholders, so it's hard to make
-  them separate. The behavior of the underline is different from the upstream
-  st: it's drawn behind the text and the thickness depends on the font size. You
-  may need to tweak the code in `xdrawglyphfontspecs` in `x.c` if you don't like
-  it.
+- **st core**: suckless.org team and contributors
+- **Kitty Graphics Protocol**: Sergei Grechanik
+- **khash / kvec**: Attractive Chaos
+- **Font Ligatures**: HarfBuzz patch contributors
+- **Boxdraw**: Boxdraw patch contributors
+- **Modernization & Integration**: Dereck
