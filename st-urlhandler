@@ -1,0 +1,44 @@
+#!/bin/sh
+
+urlregex="(((http|https|gopher|gemini|ftp|ftps|git)://|www\\.)[a-zA-Z0-9.]*[:;a-zA-Z0-9./+@$&%?$\#=_~-]*)|((magnet:\\?xt=urn:btih:)[a-zA-Z0-9]*)"
+
+urls="$(sed 's/.*│//g' | tr -d '\n' |
+	grep -aEo "$urlregex" |
+	uniq |
+	sed "s/\(\.\|,\|;\|\!\\|\?\)$//; s/^www./http:\/\/www\./")"
+
+[ -z "$urls" ] && exit 0
+
+while getopts "hoc" o; do
+	case "${o}" in
+	h)
+		printf "Usage: %s [-o|-c|-h]\n  -o: open URL in browser (via xdg-open or dmenu)\n  -c: copy URL to clipboard\n  -h: help\n" "$0"
+		exit 0
+		;;
+	o)
+		if command -v dmenu >/dev/null 2>&1; then
+			chosen="$(echo "$urls" | dmenu -i -p "Open URL:" -l 10)"
+		else
+			chosen="$(echo "$urls" | head -n 1)"
+		fi
+		[ -n "$chosen" ] && setsid xdg-open "$chosen" >/dev/null 2>&1 &
+		;;
+	c)
+		if command -v dmenu >/dev/null 2>&1; then
+			chosen="$(echo "$urls" | dmenu -i -p "Copy URL:" -l 10)"
+		else
+			chosen="$(echo "$urls" | head -n 1)"
+		fi
+		if [ -n "$chosen" ]; then
+			if command -v xclip >/dev/null 2>&1; then
+				printf '%s' "$chosen" | xclip -selection clipboard
+			elif command -v xsel >/dev/null 2>&1; then
+				printf '%s' "$chosen" | xsel -b -i
+			fi
+		fi
+		;;
+	*)
+		exit 1
+		;;
+	esac
+done
