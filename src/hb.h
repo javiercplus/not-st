@@ -1,3 +1,6 @@
+#ifndef ST_HB_H
+#define ST_HB_H
+
 #include <X11/Xft/Xft.h>
 #include <hb.h>
 #include <hb-ft.h>
@@ -12,3 +15,5 @@ typedef struct {
 void hbunloadfonts();
 void hbtransform(HbTransformData *, XftFont *, const Glyph *, int, int);
 void hbcleanup(HbTransformData *);
+
+#endif

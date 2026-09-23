@@ -1,6 +1,6 @@
-# st - Modern Lightweight Alternative to Kitty for X11
+# not-st
 
-A blazing-fast, ultra-lightweight X11 terminal emulator based on `st` (suckless) with Kitty Graphics Protocol, font ligatures, transparency, mouse scrollback, cursor styles, fullscreen toggle, and runtime external configuration (`st.conf`).
+An `st` fork with Kitty Graphics Protocol support and external runtime configuration (`st.conf`).
 
 ---
 
@@ -69,7 +69,7 @@ To get started, copy the provided example configuration:
 
 ```sh
 mkdir -p ~/.config/st
-cp st.conf.example ~/.config/st/st.conf
+cp examples/st.conf.example ~/.config/st/st.conf
 ```
 
 ---
@@ -121,13 +121,18 @@ tic -sx st.info
 
 ---
 
-## Credits & License
+## Credits & Upstream Projects
 
-Distributed under the MIT/X Consortium License. See [LICENSE](file:///home/dereck/st/LICENSE) for details.
+This project is built upon the work of the suckless community and several modern `st` forks:
 
-- **st core**: suckless.org team and contributors
-- **Kitty Graphics Protocol**: Sergei Grechanik
-- **khash / kvec**: Attractive Chaos
-- **Font Ligatures**: HarfBuzz patch contributors
-- **Boxdraw**: Boxdraw patch contributors
-- **Modernization & Integration**: Dereck
+- **[st upstream](https://git.suckless.org/st/)** — The original simple terminal emulator by the suckless.org team.
+- **[st-graphics](https://github.com/sergei-grechanik/st-graphics)** by Sergei Grechanik — Kitty Graphics Protocol implementation and inline image rendering engine.
+- **[st-sx](https://github.com/veltza/st-sx)** by veltza — Modern X11 features, patches, and enhancements.
+- **[st](https://github.com/mohkale/st)** by mohkale — Scrollback reflow architecture and standalone buffer concepts.
+- **[st](https://github.com/zootedb0t/st)** by zootedb0t — Dynamic cursor styling, themes, and modern TUI integrations.
+- **[khash / kvec](https://github.com/attractivechaos/klib)** by Attractive Chaos — Lightweight hash map and dynamic vector headers.
+- **HarfBuzz & Boxdraw** — Font ligatures shaping and crisp box-drawing patch contributors.
+
+## License
+
+Distributed under the MIT/X Consortium License. See [LICENSE](LICENSE) for details.
