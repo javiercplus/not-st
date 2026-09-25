@@ -20,7 +20,10 @@ do_install() {
     mkdir -p ${DESTDIR}/usr/share/terminfo
     export TERMINFO=${DESTDIR}/usr/share/terminfo
     mkdir -p ${DESTDIR}/usr/share/applications
+    mkdir -p ${DESTDIR}/usr/share/icons
     mkdir -p ${DESTDIR}/usr/bin
+    vcopy assets/st.desktop ${DESTDIR}/usr/share/applications/st.desktop
+    vcopy assets/st.png ${DESTDIR}/usr/share/icons/st.png
     vbin not-st 
     vlicense LICENSE
     vdoc README.md
