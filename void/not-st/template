@@ -15,11 +15,12 @@ distfiles="https://github.com/Derszi65g/not-st/archive/refs/tags/v${version}.tar
 checksum=ea0aca856e86276e42fa7300ed2b1a96404720cc8c6ef65754bdd87e5b6ac753
 
 do_install() {
-	mkdir -p ${DESTDIR}/usr/share/terminfo
-	export TERMINFO=${DESTDIR}/usr/share/terminfo
-	mkdir -p ${DESTDIR}/usr/share/applications
-	mkdir -p ${DESTDIR}/usr/bin
-	vinstall st ${DESTDIR}/usr/bin/not-st
-	vlicense LICENSE
-	vdoc README.md
+    mkdir -p ${DESTDIR}/usr/share/terminfo
+    export TERMINFO=${DESTDIR}/usr/share/terminfo
+    mkdir -p ${DESTDIR}/usr/share/applications
+    mkdir -p ${DESTDIR}/usr/bin
+    mv st not-st
+    vinstall not-st ${DESTDIR}/usr/bin/
+    vlicense LICENSE
+    vdoc README.md
 }
