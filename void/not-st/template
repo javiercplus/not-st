@@ -21,7 +21,7 @@ do_install() {
     export TERMINFO=${DESTDIR}/usr/share/terminfo
     mkdir -p ${DESTDIR}/usr/share/applications
     mkdir -p ${DESTDIR}/usr/bin
-    vinstall not-st ${DESTDIR}/usr/bin/
+    vbin not-st 
     vlicense LICENSE
     vdoc README.md
 }
